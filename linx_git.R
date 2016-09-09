@@ -778,6 +778,7 @@ save(res.CF.dip.lang.sk.kw, file='C:/Users/Altran/Desktop/BD/29-08/R files/res.C
 load('C:/Users/Altran/Desktop/BD/29-08/R files/res.CF.dip.lang.sk.kw.RData')
 
 
+
 # join of res.CF.dip.lang.sk.kw & certif.wide_small
 
 all.main.joins <- merge(x = res.CF.dip.lang.sk.kw, y = certif.wide_small, by = "employee_id", all.x = TRUE)
@@ -786,6 +787,32 @@ all.main.joins <- merge(x = res.CF.dip.lang.sk.kw, y = certif.wide_small, by = "
 all.main.joins <- na.tree.replace(all.main.joins)
 save(all.main.joins, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins.RData', ascii=T)
 load('C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins.RData')
+
+# perc distribution of NAs
+
+NA_perc.ALL <- sapply(all.main.joins, function(y) round(sum(length(which(is.na(y))))*100/length(y), 1))
+NA_perc.ALL <- data.frame(NA_perc.ALL)
+orderBy(~-NA_perc.ALL, NA_perc.ALL)
+
+# to delete vars with more than a dipain $ of NAs
+all.main.joins_small <- all.main.joins[, colSums(is.na(all.main.joins)) < nrow(all.main.joins) * 0.95]
+
+# or when 'NA'
+NAfact_perc.dip <- sapply(all.main.joins, function(y) round(as.numeric(length(y[y=='NA'])*100/length(y)), 1))
+
+# all.main.joins_small <- na.tree.replace(all.main.joins_small)
+
+# drop vars
+all.main.joins_small <- select(all.main.joins, -lang_portuguese, -summary, nationality)
+
+# clean vars
+all.main.joins_small$location <- ifelse(all.main.joins_small$location=='Portugal - Lisbon',
+                                        'Lisbon', 'other')
+
+
+
+
+
 
 
 # save tables as csv files
