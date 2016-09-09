@@ -781,9 +781,8 @@ load('C:/Users/Altran/Desktop/BD/29-08/R files/res.CF.dip.lang.sk.kw.RData')
 # join of res.CF.dip.lang.sk.kw & certif.wide_small
 
 all.main.joins <- merge(x = res.CF.dip.lang.sk.kw, y = certif.wide_small, by = "employee_id", all.x = TRUE)
-#because unpublished (='Initiated') profiles in CF have ~40% (not counting with name=NA) of NAs against ~22% for 'Published':
-all.main.joins <- filter(all.main.joins, linx_pub_status=='Published' | is.na(linx_pub_status)==T)
-#
+#removing rows with linx_pub_status='Initiated'
+#all.main.joins <- filter(all.main.joins, linx_pub_status=='Published' | is.na(linx_pub_status)==T)
 all.main.joins <- na.tree.replace(all.main.joins)
 save(all.main.joins, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins.RData', ascii=T)
 load('C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins.RData')
