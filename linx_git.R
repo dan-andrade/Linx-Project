@@ -798,16 +798,21 @@ orderBy(~-NA_perc.ALL, NA_perc.ALL)
 all.main.joins_small <- all.main.joins[, colSums(is.na(all.main.joins)) < nrow(all.main.joins) * 0.95]
 
 # or when 'NA'
-NAfact_perc.dip <- sapply(all.main.joins, function(y) round(as.numeric(length(y[y=='NA'])*100/length(y)), 1))
+# NAfact_perc.dip <- sapply(all.main.joins, function(y) round(as.numeric(length(y[y=='NA'])*100/length(y)), 1))
 
 # all.main.joins_small <- na.tree.replace(all.main.joins_small)
 
 # drop vars
-all.main.joins_small <- select(all.main.joins, -lang_portuguese, -summary, nationality)
+all.main.joins_small <- select(all.main.joins, -lang_portuguese, -summary, -nationality)
 
 # clean vars
+
+#location into dummy
 all.main.joins_small$location <- ifelse(all.main.joins_small$location=='Portugal - Lisbon',
                                         'Lisbon', 'other')
+setnames(all.main.joins_small, old='location', new='at_lisbon')
+all.main.joins_small$at_lisbon <- ifelse(all.main.joins_small$at_lisbon== "Lisbon", 1, 0)
+all.main.joins_small$at_lisbon <- as.factor(all.main.joins_small$at_lisbon)
 
 
 
