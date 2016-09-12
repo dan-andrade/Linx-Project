@@ -586,7 +586,7 @@ NA_perc.sk <- data.frame(NA_perc.sk)
 orderBy(~-NA_perc.sk, NA_perc.sk)
 
 # to delete vars with more than a certain $ of NAs
-skills.wide_small <- skills.wide[, colSums(is.na(skills.wide)) < nrow(skills.wide) * 0.6]
+skills.wide_small <- skills.wide[, colSums(is.na(skills.wide)) < nrow(skills.wide) * 0.5]
 
 # or when 'NA'
 NAfact_perc.sk <- sapply(skills.wide, function(y) round(as.numeric(length(y[y=='NA'])*100/length(y)), 1))
@@ -618,6 +618,9 @@ certif$certification <- ifelse(certif$certification=='', 'other', certif$certifi
 # corrections
 # certif$certification <- replace(certif$certification, agrep('---', tolower(certif$certification)), '---')
 
+# combine levels of skills
+certif$certif <- combine.levels(certif$certification, minlev = 0.002)
+
 ### transpositions from long to wide format
 
 #create index for each certification by ID
@@ -625,7 +628,7 @@ certif <- certif %>% group_by(employee_id) %>% mutate(cert_nr = row_number())
 certif <- data.frame(certif)
 certif$cert_nr <- paste0('cert_', certif$cert_nr)
 #from long to wide
-certif.wide <- dcast(certif, employee_id ~ cert_nr, value.var = 'certification')
+certif.wide <- dcast(certif, employee_id ~ cert_nr, value.var = 'certif')
 certif.wide[sapply(certif.wide, is.character)] <- lapply(certif.wide[sapply(certif.wide, is.character)],
                                                          as.factor) #convert vars again into factors to use na.tree.replace to recode NAs
 #which IDs are repeated
@@ -641,7 +644,8 @@ NA_perc.cert <- data.frame(NA_perc.cert)
 orderBy(~-NA_perc.cert, NA_perc.cert)
 
 # to delete vars with more than a certain $ of NAs
-certif.wide_small <- certif.wide[, colSums(is.na(certif.wide)) < nrow(certif.wide) * 0.6]
+certif.wide_small <- select(certif.wide_small, employee_id, cert_1)
+certif.wide_small_2 <- certif.wide[, colSums(is.na(certif.wide)) < nrow(certif.wide) * 0.6]
 
 # or when 'NA'
 NAfact_perc.cert <- sapply(certif.wide, function(y) round(as.numeric(length(y[y=='NA'])*100/length(y)), 1))
@@ -847,12 +851,14 @@ all.main.joins_small <- select(all.main.joins, -lang_portuguese, -summary, -nati
 # clean vars
 
 #location into dummy
-all.main.joins_small$location <- ifelse(all.main.joins_small$location=='Portugal - Lisbon',
+all.main.joins_small$location <- ifelse(all.main.joins_small$location =='Portugal - Lisbon',
                                         'Lisbon', 'other')
 setnames(all.main.joins_small, old='location', new='at_lisbon')
-all.main.joins_small$at_lisbon <- ifelse(all.main.joins_small$at_lisbon== "Lisbon", 1, 0)
+all.main.joins_small$at_lisbon <- ifelse(all.main.joins_small$at_lisbon == "Lisbon", 1, 0)
 all.main.joins_small$at_lisbon <- as.factor(all.main.joins_small$at_lisbon)
 
+#set has_certif
+all.main.joins_small$has_certif <- ifelse(is.na(all.main.joins_small$cert_1) == T, 0, 1)
 
 
 
