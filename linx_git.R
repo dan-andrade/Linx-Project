@@ -452,14 +452,13 @@ load('C:/Users/Altran/Desktop/BD/29-08/R files/freq.k.RData')
 ### transpositions from long to wide format
 
 # keywords
-# first test with k2 (includes small set of kw)
 
 #create index for each keyword by ID
-k2 <- k2 %>% group_by(employee_id) %>% mutate(kw_nr = row_number())
+k2 <- keywords2 %>% group_by(employee_id) %>% mutate(kw_nr = row_number())
 k2 <- data.frame(k2)
 k2$kw_nr <- paste0('kw_', k2$kw_nr)
 #from long to wide
-k2.wide <- dcast(k2, employee_id ~ kw_nr, value.var = 'kw_reduced')
+k2.wide <- dcast(k2, employee_id ~ kw_nr, value.var = 'k1_new')
 k2.wide[sapply(k2.wide, is.character)] <- lapply(k2.wide[sapply(k2.wide, is.character)],
                                                  as.factor) #convert vars again into factors to use na.tree.replace to recode NAs
 #which IDs are repeated
@@ -475,7 +474,7 @@ NA_perc.kw <- data.frame(NA_perc.kw)
 orderBy(~-NA_perc.kw, NA_perc.kw)
 
 # to delete vars with more than a certain $ of NAs
-k2.wide_small <- k2.wide[, colSums(is.na(k2.wide)) < nrow(k2.wide) * 0.5]
+k2.wide_small <- k2.wide[, colSums(is.na(k2.wide)) < nrow(k2.wide) * 0.3]
 
 # or when 'NA'
 NAfact_perc.kw <- sapply(k2.wide, function(y) round(as.numeric(length(y[y=='NA'])*100/length(y)), 1))
@@ -523,6 +522,30 @@ skills2$skill_specialty <- ifelse(skills2$skill_specialty=='', 'other', skills2$
 
 # corrections
 skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('desenvolvimento aplicacional de software', tolower(skills2$skill_specialty)), 'software application development')
+
+# combine levels of skills
+skills2$skill_specialty <- combine.levels(skills2$skill_specialty, minlev = 0.001)
+#corrections
+skills2$skill_specialty <- tolower(skills2$skill_specialty) #correcting 'OTHERS'
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('architecture  design', skills2$skill_specialty), 'arquitetura e desenho')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('arquitetura e desenho de sistemas', skills2$skill_specialty), 'arquitetura e desenho')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('banking product', skills2$skill_specialty), 'banking')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('banking services', skills2$skill_specialty), 'banking')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('dashboarding  reporting', skills2$skill_specialty), 'dashboarding e relatórios')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('diagnostic maintenance  aftersales', skills2$skill_specialty), 'diagnóstico manutenção e pósvendas')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('financial management', skills2$skill_specialty), 'finance services')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('gestão de processos de negócio e fluxos de trabalho', skills2$skill_specialty), 'gestão de processos ti')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('it test  validation automation', skills2$skill_specialty), 'it technical test  validation')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('packaging  integration', skills2$skill_specialty), 'packaging e integração')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('bancários', skills2$skill_specialty), 'banking')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('finance', skills2$skill_specialty), 'finance services')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('software', skills2$skill_specialty), 'software')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('sap', skills2$skill_specialty), 'sap')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('customer', skills2$skill_specialty), 'customer service')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('cliente', skills2$skill_specialty), 'customer service')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('test', skills2$skill_specialty), 'testing')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('transmissão', skills2$skill_specialty), 'transmission')
+skills2$skill_specialty <- as.factor(skills2$skill_specialty)
 
 # frequencies
 freq.skills <- as.data.frame(table(skills2$skill_specialty))
