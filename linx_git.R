@@ -437,6 +437,7 @@ kw_reduced <- ifelse(kw_reduced=='a', 'other', kw_reduced)
 
 # create new column with the reduced list of keywords
 k2$kw_reduced <- as.factor(kw_reduced)
+
 ###
 
 save(keywords2, file='C:/Users/Altran/Desktop/BD/29-08/R files/keywords2.RData', ascii=T)
@@ -620,6 +621,7 @@ certif$certification <- ifelse(certif$certification=='', 'other', certif$certifi
 
 # combine levels of skills
 certif$certif <- combine.levels(certif$certification, minlev = 0.002)
+certif$certif <- tolower(certif$certif)
 
 ### transpositions from long to wide format
 
@@ -670,7 +672,7 @@ NA_perc.lang <- data.frame(NA_perc.lang)
 orderBy(~-NA_perc.lang, NA_perc.lang)
 
 # to delete vars with more than a certain $ of NAs
-lang.wide_small <- lang.wide[, colSums(is.na(lang.wide)) < nrow(lang.wide) * 0.95]
+lang.wide_small <- lang.wide[, colSums(is.na(lang.wide)) < nrow(lang.wide) * 0.75]
 
 # or when 'NA'
 NAfact_perc.lang <- sapply(lang.wide, function(y) round(as.numeric(length(y[y=='NA'])*100/length(y)), 1))
@@ -708,6 +710,11 @@ diplomas$dip_specialization_name <- ifelse(diplomas$dip_specialization_name=='',
 # corrections
 # diplomas$dip_specialization_name <- replace(diplomas$dip_specialization_name, agrep('---', tolower(diplomas$dip_specialization_name)), '---')
 
+# combine levels of certifications
+diplomas$dip_specialization_name <- combine.levels(diplomas$dip_specialization_name, minlev = 0.003)
+#corrections
+diplomas$dip_specialization_name <- tolower(diplomas$dip_specialization_name) #correcting 'OTHERS'
+
 ### transpositions from long to wide format
 
 #create index for each diplomasication by ID
@@ -730,7 +737,7 @@ NA_perc.dip <- sapply(diplomas.wide, function(y) round(sum(length(which(is.na(y)
 NA_perc.dip <- data.frame(NA_perc.dip)
 orderBy(~-NA_perc.dip, NA_perc.dip)
 
-# to delete vars with more than a dipain $ of NAs
+# to delete vars with more than a certain $ of NAs
 diplomas.wide_small <- diplomas.wide[, colSums(is.na(diplomas.wide)) < nrow(diplomas.wide) * 0.95]
 
 # or when 'NA'
@@ -771,11 +778,11 @@ exp.keywords
 ### joins
 
 
-# full join of resources & CF
+# full outer join of resources & CF
 
 res.CF_full <- merge(x = resources, y = CF, by = "employee_id", all = TRUE)
 res.CF_full <- na.tree.replace(res.CF_full)
-save(res.CF, file='C:/Users/Altran/Desktop/BD/29-08/R files/res.CF_full.RData', ascii=T)
+save(res.CF_full, file='C:/Users/Altran/Desktop/BD/29-08/R files/res.CF_full.RData', ascii=T)
 load('C:/Users/Altran/Desktop/BD/29-08/R files/res.CF_full.RData')
 
 # left join of resources & CF
@@ -789,7 +796,7 @@ load('C:/Users/Altran/Desktop/BD/29-08/R files/res.CF.RData')
 
 # join of res.CF_full & diplomas.wide_small
 
-res.CF.dip <- merge(x = res.CF, y = diplomas.wide_small, by = "employee_id", all.x = TRUE)
+res.CF.dip <- merge(x = res.CF_full, y = diplomas.wide_small, by = "employee_id", all.x = TRUE)
 res.CF.dip <- na.tree.replace(res.CF.dip)
 save(res.CF.dip, file='C:/Users/Altran/Desktop/BD/29-08/R files/res.CF.dip.RData', ascii=T)
 load('C:/Users/Altran/Desktop/BD/29-08/R files/res.CF.dip.RData')
@@ -837,8 +844,8 @@ NA_perc.ALL <- sapply(all.main.joins, function(y) round(sum(length(which(is.na(y
 NA_perc.ALL <- data.frame(NA_perc.ALL)
 orderBy(~-NA_perc.ALL, NA_perc.ALL)
 
-# to delete vars with more than a dipain $ of NAs
-all.main.joins_small <- all.main.joins[, colSums(is.na(all.main.joins)) < nrow(all.main.joins) * 0.95]
+# to delete vars with more than a certain $ of NAs
+all.main.joins_small <- all.main.joins[, colSums(is.na(all.main.joins)) < nrow(all.main.joins) * 0.9]
 
 # or when 'NA'
 # NAfact_perc.dip <- sapply(all.main.joins, function(y) round(as.numeric(length(y[y=='NA'])*100/length(y)), 1))
@@ -877,6 +884,7 @@ write.csv2(experiences, file='C:/Users/Altran/Desktop/BD/29-08/R output/experien
 write.csv2(exp.skills, file='C:/Users/Altran/Desktop/BD/29-08/R output/exp.skills.csv')
 write.csv2(exp.keywords, file='C:/Users/Altran/Desktop/BD/29-08/R output/exp.keywords.csv')
 write.csv2(all.main.joins, file='C:/Users/Altran/Desktop/BD/29-08/R output/all.main.joins.csv')
+write.csv2(all.main.joins_small, file='C:/Users/Altran/Desktop/BD/29-08/R output/all.main.joins_small.csv')
 
 
 
