@@ -404,7 +404,22 @@ keywords2$k1_new <- ifelse(keywords2$k1_new=='', 'other', keywords2$k1_new)
 # corrections
 keywords2$k1_new <- replace(keywords2$k1_new, agrep('alcatellucent', tolower(keywords2$k1_new)), 'alcatellucent')
 
-# frequencies
+# combine levels of keywords
+keywords2$k1_new <- combine.levels(keywords2$k1_new, minlev = 0.0005)
+#corrections
+keywords2$k1_new <- replace(keywords2$k1_new, agrep('OTHER', keywords2$k1_new), 'other')
+keywords2$k1_new <- replace(keywords2$k1_new, agrep('android studio', keywords2$k1_new), 'android')
+keywords2$k1_new <- replace(keywords2$k1_new, agrep('github', keywords2$k1_new), 'git')
+keywords2$k1_new <- replace(keywords2$k1_new, agrep('ms visio', keywords2$k1_new), 'visio')
+keywords2$k1_new <- replace(keywords2$k1_new, agrep('project management', keywords2$k1_new), 'project')
+keywords2$k1_new <- replace(keywords2$k1_new, agrep('rest architecture', keywords2$k1_new), 'rest')
+keywords2$k1_new <- replace(keywords2$k1_new, agrep('shell scripting', keywords2$k1_new), 'shell script')
+keywords2$k1_new <- replace(keywords2$k1_new, agrep('shell scripting ksh sh bash…', keywords2$k1_new), 'shell script')
+keywords2$k1_new <- replace(keywords2$k1_new, agrep('tems discovery', keywords2$k1_new), 'tems')
+keywords2$k1_new <- replace(keywords2$k1_new, agrep('vb', keywords2$k1_new), 'visual basic')
+
+
+### frequencies
 freq.k <- as.data.frame(table(keywords2$k1_new))
 colnames(freq.k)[1] <- 'kw'
 freq.k <- orderBy(~-Freq, freq.k) # order freqs
@@ -422,6 +437,7 @@ kw_reduced <- ifelse(kw_reduced=='a', 'other', kw_reduced)
 
 # create new column with the reduced list of keywords
 k2$kw_reduced <- as.factor(kw_reduced)
+###
 
 save(keywords2, file='C:/Users/Altran/Desktop/BD/29-08/R files/keywords2.RData', ascii=T)
 load('C:/Users/Altran/Desktop/BD/29-08/R files/keywords2.RData')
