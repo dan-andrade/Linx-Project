@@ -853,15 +853,23 @@ all.main.joins_small <- all.main.joins[, colSums(is.na(all.main.joins)) < nrow(a
 # all.main.joins_small <- na.tree.replace(all.main.joins_small)
 
 # drop vars
-all.main.joins_small <- select(all.main.joins, -hierar_mgr, -lang_portuguese,
-                               -summary, -nationality, -profile_title, -hierar_mgr)
+all.main.joins_small <- select(all.main.joins_small, -hierar_mgr, -lang_portuguese,
+                               -summary, -nationality, -profile_title)
+NA_perc.ALL_small <- sapply(all.main.joins_small, function(y) round(sum(length(which(is.na(y))))*100/length(y), 1))
+NA_perc.ALL_small <- data.frame(NA_perc.ALL_small)
+orderBy(~-NA_perc.ALL_small, NA_perc.ALL_small)
 
 # clean vars
 
-#location into dummy
+#location into dummy / join location & location_2 to replace NAs in location
 all.main.joins_small$location <- ifelse(all.main.joins_small$location =='Portugal - Lisbon',
                                         'Lisbon', 'other')
+all.main.joins_small$location_2 <- ifelse(all.main.joins_small$location_2 =='Portugal - Lisbon',
+                                        'Lisbon', 'other')
+all.main.joins_small$location <- ifelse(is.na(all.main.joins_small$location) == T,
+                                        all.main.joins_small$location_2, all.main.joins_small$location)
 setnames(all.main.joins_small, old='location', new='at_lisbon')
+all.main.joins_small <- select(all.main.joins_small, -location_2)
 all.main.joins_small$at_lisbon <- ifelse(all.main.joins_small$at_lisbon == "Lisbon", 1, 0)
 all.main.joins_small$at_lisbon <- as.factor(all.main.joins_small$at_lisbon)
 
