@@ -873,6 +873,17 @@ all.main.joins_small <- select(all.main.joins_small, -location_2)
 all.main.joins_small$at_lisbon <- ifelse(all.main.joins_small$at_lisbon == "Lisbon", 1, 0)
 all.main.joins_small$at_lisbon <- as.factor(all.main.joins_small$at_lisbon)
 
+#join sub_division & sub_division_2 to replace NAs in sub_division
+all.main.joins_small$sub_division <- as.character(all.main.joins_small$sub_division)
+all.main.joins_small$sub_division_2 <- as.character(all.main.joins_small$sub_division_2)
+all.main.joins_small$sub_division <- ifelse(is.na(all.main.joins_small$sub_division) == T,
+                                        all.main.joins_small$sub_division_2, all.main.joins_small$sub_division)
+all.main.joins_small <- select(all.main.joins_small, -sub_division_2)
+#clean levels
+all.main.joins_small$sub_division <- gsub("altran |portugal - | - portugal", "", tolower(all.main.joins_small$sub_division))
+all.main.joins_small$sub_division <- gsub("finance", "fs", tolower(all.main.joins_small$sub_division))
+all.main.joins_small$sub_division <- gsub("government industry ait", "government, industry & ait", tolower(all.main.joins_small$sub_division))
+
 #set has_certif
 all.main.joins_small$has_certif <- ifelse(is.na(all.main.joins_small$cert_1) == T, 0, 1)
 
