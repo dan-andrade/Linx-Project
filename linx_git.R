@@ -853,7 +853,7 @@ all.main.joins_small <- all.main.joins[, colSums(is.na(all.main.joins)) < nrow(a
 # all.main.joins_small <- na.tree.replace(all.main.joins_small)
 
 # drop vars
-all.main.joins_small <- select(all.main.joins, -lang_portuguese, -summary, -nationality)
+all.main.joins_small <- select(all.main.joins, -hierar_mgr, -lang_portuguese, -summary, -nationality)
 
 # clean vars
 
@@ -866,6 +866,10 @@ all.main.joins_small$at_lisbon <- as.factor(all.main.joins_small$at_lisbon)
 
 #set has_certif
 all.main.joins_small$has_certif <- ifelse(is.na(all.main.joins_small$cert_1) == T, 0, 1)
+
+#dates
+all.main.joins_small$hire_date <- as.Date(all.main.joins_small$hire_date, format='%Y/%m/%d')
+all.main.joins_small$leave_date <- as.Date(all.main.joins_small$leave_date, format='%Y/%m/%d')
 
 
 
