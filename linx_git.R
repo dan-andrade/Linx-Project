@@ -129,14 +129,14 @@ colMeans(is.na(exp.keywords)>0)
 ### drop variables with one level only
 
 resources <- resources %>% select(-COUNTRY, -GEOGRAPHICAL.AREA)
-CF <- CF %>% select(-(1:10), -CFName, -CFLanguage)
+CF <- CF %>% select(-(1:10))
 keywords <- keywords %>% select(-IsPrincipal)
 
 
 ### drop unnecessary variables - PHASE 1
 
 resources <- resources %>% select(-RESMNGRID)
-CF <- CF %>% select(-OBSUnit6Name, -OBSUnit6Code, -OBSUnit11Code, -ResourceLogin, -WorkSiteName, -Resource.Manager.CorporateId, -Resource.Manager.full.name, -Hierarchical.Manager.CorporateId, -Hierarchical.Manager.full.name,-CfId, -CFLastUpdated)
+CF <- CF %>% select(-OBSUnit6Code, -OBSUnit11Code, -ResourceLogin, -Resource.Manager.CorporateId, -Hierarchical.Manager.CorporateId, -Hierarchical.Manager.full.name,-CfId, -CFLastUpdated, -CFName, -CFLanguage)
 diplomas <- diplomas %>% select(-CFId, -CountryCode, -City, -ducationalLevelCode)
 lang <- lang %>% select(-CFId, -languageid, -GlobalLevelId, -GlobalLevelName)
 certif <- certif %>% select(-CFId, -Provider, -CertificationDate)
@@ -154,9 +154,9 @@ setnames(resources, old=names(resources), new=c('name', 'location', 'manager_nam
                                                 'status', 'sub_division', 'department', 'contract_type', 'hierar_mgr', 'employee_id'))
 
 #CF
-setnames(CF, old=names(CF), new=c('unit_name', 'employee_id', 'employee_type', 'is_active', 
-                                  'position', 'hire_date', 'leave_date', 'career_start_date', 'nationality',
-                                  'linx_pub_status', 'summary', 'profile_title'))
+setnames(CF, old=names(CF), new=c('sub_division_2', 'unit_name', 'employee_id', 'employee_type', 'is_active', 
+                                  'position', 'hire_date', 'leave_date', 'career_start_date', 'location_2','nationality',
+                                  'manager_name', 'linx_pub_status', 'summary', 'profile_title'))
 
 #diplomas
 setnames(diplomas, old=names(diplomas), new=c('employee_id', 'diploma_country', 'school_name', 'graduation_name',
@@ -845,7 +845,7 @@ NA_perc.ALL <- data.frame(NA_perc.ALL)
 orderBy(~-NA_perc.ALL, NA_perc.ALL)
 
 # to delete vars with more than a certain $ of NAs
-all.main.joins_small <- all.main.joins[, colSums(is.na(all.main.joins)) < nrow(all.main.joins) * 0.9]
+all.main.joins_small <- all.main.joins[, colSums(is.na(all.main.joins)) < nrow(all.main.joins) * 0.75]
 
 # or when 'NA'
 # NAfact_perc.dip <- sapply(all.main.joins, function(y) round(as.numeric(length(y[y=='NA'])*100/length(y)), 1))
@@ -853,7 +853,8 @@ all.main.joins_small <- all.main.joins[, colSums(is.na(all.main.joins)) < nrow(a
 # all.main.joins_small <- na.tree.replace(all.main.joins_small)
 
 # drop vars
-all.main.joins_small <- select(all.main.joins, -hierar_mgr, -lang_portuguese, -summary, -nationality)
+all.main.joins_small <- select(all.main.joins, -hierar_mgr, -lang_portuguese,
+                               -summary, -nationality, -profile_title, -hierar_mgr)
 
 # clean vars
 
@@ -870,6 +871,15 @@ all.main.joins_small$has_certif <- ifelse(is.na(all.main.joins_small$cert_1) == 
 #dates
 all.main.joins_small$hire_date <- as.Date(all.main.joins_small$hire_date, format='%Y/%m/%d')
 all.main.joins_small$leave_date <- as.Date(all.main.joins_small$leave_date, format='%Y/%m/%d')
+all.main.joins_small$career_start_date <- as.Date(all.main.joins_small$career_start_date, format='%Y/%m/%d')
+
+#dip_1
+all.main.joins_small$dip_1 <- replace(all.main.joins_small$dip_1 , agrep('health biomedical', tolower(all.main.joins_small$dip_1 )), 'engenharia biomédica')
+
+
+
+save(all.main.joins_small, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small.RData', ascii=T)
+
 
 
 
