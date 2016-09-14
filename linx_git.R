@@ -677,6 +677,14 @@ lang.wide_small <- lang.wide[, colSums(is.na(lang.wide)) < nrow(lang.wide) * 0.7
 # or when 'NA'
 NAfact_perc.lang <- sapply(lang.wide, function(y) round(as.numeric(length(y[y=='NA'])*100/length(y)), 1))
 
+# relabeling
+lang.wide_small[2:5] <- ifelse(lang.wide_small[2:5]=='A1', 1, (ifelse(lang.wide_small[2:5]=='A2', 2, (ifelse(lang.wide_small[2:5]=='B1', 3,
+                                                                                                             (ifelse(lang.wide_small[2:5]=='B2', 4, (ifelse(lang.wide_small[2:5]=='C1', 5, (ifelse(lang.wide_small[2:5]=='C2', 6,
+                                                                                                                                                                                                   (ifelse(lang.wide_small[2:5]=='MT', 7, '')))))))))))))
+
+lang.wide_small[is.na(lang.wide_small)==T] <- 0
+lang.wide_small[sapply(lang.wide_small, is.character)] <- lapply(lang.wide_small[sapply(lang.wide_small, is.character)],
+                                                                 as.factor) 
 
 
 
@@ -854,7 +862,7 @@ all.main.joins_small <- all.main.joins[, colSums(is.na(all.main.joins)) < nrow(a
 
 # drop vars
 all.main.joins_small <- select(all.main.joins_small, -hierar_mgr, -lang_portuguese,
-                               -summary, -nationality, -profile_title)
+                               -summary, -nationality, -profile_title, -unit_name)
 NA_perc.ALL_small <- sapply(all.main.joins_small, function(y) round(sum(length(which(is.na(y))))*100/length(y), 1))
 NA_perc.ALL_small <- data.frame(NA_perc.ALL_small)
 orderBy(~-NA_perc.ALL_small, NA_perc.ALL_small)
@@ -916,6 +924,8 @@ all.main.joins_small$career_start_date <- as.Date(all.main.joins_small$career_st
 
 # dip_1
 all.main.joins_small$dip_1 <- replace(all.main.joins_small$dip_1 , agrep('health biomedical', tolower(all.main.joins_small$dip_1 )), 'engenharia biomédica')
+
+
 
 # status
 
