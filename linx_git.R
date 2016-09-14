@@ -664,8 +664,6 @@ lang.wide[sapply(lang.wide, is.character)] <- lapply(lang.wide[sapply(lang.wide,
                                                      as.factor) 
 lang.wide <- na.tree.replace(lang.wide)
 
-### (eventually, replace levels by 1 and NAs by 0)
-
 # lang.wide[lang.wide=='NA'] <- NA # if NAs are 'NA'
 NA_perc.lang <- sapply(lang.wide, function(y) round(sum(length(which(is.na(y))))*100/length(y), 1))
 NA_perc.lang <- data.frame(NA_perc.lang)
@@ -683,8 +681,6 @@ lang.wide_small[2:5] <- ifelse(lang.wide_small[2:5]=='A1', 1, (ifelse(lang.wide_
                                                                                                                                                                                                    (ifelse(lang.wide_small[2:5]=='MT', 7, '')))))))))))))
 
 lang.wide_small[is.na(lang.wide_small)==T] <- 0
-lang.wide_small[sapply(lang.wide_small, is.character)] <- lapply(lang.wide_small[sapply(lang.wide_small, is.character)],
-                                                                 as.factor) 
 
 
 
@@ -862,7 +858,7 @@ all.main.joins_small <- all.main.joins[, colSums(is.na(all.main.joins)) < nrow(a
 
 # drop vars
 all.main.joins_small <- select(all.main.joins_small, -hierar_mgr, -lang_portuguese,
-                               -summary, -nationality, -profile_title, -unit_name)
+                               -summary, -nationality, -profile_title, -unit_name, -leave_date)
 NA_perc.ALL_small <- sapply(all.main.joins_small, function(y) round(sum(length(which(is.na(y))))*100/length(y), 1))
 NA_perc.ALL_small <- data.frame(NA_perc.ALL_small)
 orderBy(~-NA_perc.ALL_small, NA_perc.ALL_small)
@@ -921,6 +917,26 @@ all.main.joins_small$has_certif <- ifelse(is.na(all.main.joins_small$cert_1) == 
 all.main.joins_small$hire_date <- as.Date(all.main.joins_small$hire_date, format='%Y/%m/%d')
 all.main.joins_small$leave_date <- as.Date(all.main.joins_small$leave_date, format='%Y/%m/%d')
 all.main.joins_small$career_start_date <- as.Date(all.main.joins_small$career_start_date, format='%Y/%m/%d')
+#create seniority_yrs var from hire_date
+all.main.joins_small$hire_date <- as.integer(as.double(Sys.Date() - all.main.joins_small$hire_date)/365)
+all.main.joins_small$hire_date <- ifelse(all.main.joins_small$hire_date <= 2, '0-2 yrs', (ifelse(all.main.joins_small$hire_date <= 5 & all.main.joins_small$hire_date > 2, '3-5 yrs',
+                                                                                                 (ifelse(all.main.joins_small$hire_date <= 10, '6-10 yrs',
+                                                                                                         (ifelse(all.main.joins_small$hire_date >10, '>10 yrs', '')))))))
+all.main.joins_small$hire_date <- as.factor(all.main.joins_small$hire_date)
+setnames(all.main.joins_small, old='hire_date', new='seniority_yrs')
+#create experience_yrs var from career_start_date
+all.main.joins_small$career_start_date <- as.integer(as.double(Sys.Date() - all.main.joins_small$career_start_date)/365)
+all.main.joins_small$career_start_date <- ifelse(all.main.joins_small$career_start_date <= 2, '0-2 yrs', (ifelse(all.main.joins_small$career_start_date <= 5 & all.main.joins_small$career_start_date > 2, '3-5 yrs',
+                                                                                                                 (ifelse(all.main.joins_small$career_start_date <= 10, '6-10 yrs',
+                                                                                                                         (ifelse(all.main.joins_small$career_start_date <= 15, '11-15 yrs',
+                                                                                                                                 (ifelse(all.main.joins_small$career_start_date <= 20, '16-20',
+                                                                                                                                         ifelse(all.main.joins_small$career_start_date > 20, '>20', ''))))))))))
+all.main.joins_small$career_start_date <- as.factor(all.main.joins_small$career_start_date)
+setnames(all.main.joins_small, old='career_start_date', new='experience_yrs')
+
+
+
+
 
 # dip_1
 all.main.joins_small$dip_1 <- replace(all.main.joins_small$dip_1 , agrep('health biomedical', tolower(all.main.joins_small$dip_1 )), 'engenharia biomédica')
