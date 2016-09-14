@@ -861,7 +861,7 @@ orderBy(~-NA_perc.ALL_small, NA_perc.ALL_small)
 
 # clean vars
 
-#location into dummy / join location & location_2 to replace NAs in location
+# location into dummy / join location & location_2 to replace NAs in location
 all.main.joins_small$location <- ifelse(all.main.joins_small$location =='Portugal - Lisbon',
                                         'Lisbon', 'other')
 all.main.joins_small$location_2 <- ifelse(all.main.joins_small$location_2 =='Portugal - Lisbon',
@@ -873,32 +873,58 @@ all.main.joins_small <- select(all.main.joins_small, -location_2)
 all.main.joins_small$at_lisbon <- ifelse(all.main.joins_small$at_lisbon == "Lisbon", 1, 0)
 all.main.joins_small$at_lisbon <- as.factor(all.main.joins_small$at_lisbon)
 
-#join sub_division & sub_division_2 to replace NAs in sub_division
+# join sub_division & sub_division_2 to replace NAs in sub_division
 all.main.joins_small$sub_division <- as.character(all.main.joins_small$sub_division)
 all.main.joins_small$sub_division_2 <- as.character(all.main.joins_small$sub_division_2)
 all.main.joins_small$sub_division <- ifelse(is.na(all.main.joins_small$sub_division) == T,
                                         all.main.joins_small$sub_division_2, all.main.joins_small$sub_division)
 all.main.joins_small <- select(all.main.joins_small, -sub_division_2)
+all.main.joins_small$sub_division <- as.factor(all.main.joins_small$sub_division)
 #clean levels
 all.main.joins_small$sub_division <- gsub("altran |portugal - | - portugal", "", tolower(all.main.joins_small$sub_division))
 all.main.joins_small$sub_division <- gsub("finance", "fs", tolower(all.main.joins_small$sub_division))
 all.main.joins_small$sub_division <- gsub("government industry ait", "government, industry & ait", tolower(all.main.joins_small$sub_division))
 
-#set has_certif
+# join manager_name.x & manager_name.y to replace NAs in manager_name.x
+all.main.joins_small$manager_name.x <- as.character(all.main.joins_small$manager_name.x)
+all.main.joins_small$manager_name.y <- as.character(all.main.joins_small$manager_name.y)
+all.main.joins_small$manager_name.x <- ifelse(is.na(all.main.joins_small$manager_name.x) == T,
+                                              all.main.joins_small$manager_name.y, all.main.joins_small$manager_name.x)
+all.main.joins_small <- select(all.main.joins_small, -manager_name.y)
+setnames(all.main.joins_small, old='manager_name.x', new='manager_name')
+all.main.joins_small$manager_name <- as.factor(all.main.joins_small$manager_name)
+
+# join contract_type & employee_type to replace NAs in contract_type
+all.main.joins_small$contract_type <- as.character(all.main.joins_small$contract_type)
+all.main.joins_small$employee_type <- as.character(all.main.joins_small$employee_type)
+all.main.joins_small$contract_type <- ifelse(is.na(all.main.joins_small$contract_type) == T,
+                                             all.main.joins_small$employee_type, all.main.joins_small$contract_type)
+all.main.joins_small <- select(all.main.joins_small, -employee_type)
+#clean levels
+all.main.joins_small$contract_type <- replace(all.main.joins_small$contract_type, agrep('employee', tolower(all.main.joins_small$contract_type)), 'employee')
+all.main.joins_small$contract_type <- replace(all.main.joins_small$contract_type, agrep('intern', tolower(all.main.joins_small$contract_type)), 'intern')
+all.main.joins_small$contract_type <- replace(all.main.joins_small$contract_type, agrep('subcontractor', tolower(all.main.joins_small$contract_type)), 'subcontractor')
+all.main.joins_small$contract_type <- as.factor(all.main.joins_small$contract_type)
+
+# set has_certif
 all.main.joins_small$has_certif <- ifelse(is.na(all.main.joins_small$cert_1) == T, 0, 1)
 
-#dates
+# dates
 all.main.joins_small$hire_date <- as.Date(all.main.joins_small$hire_date, format='%Y/%m/%d')
 all.main.joins_small$leave_date <- as.Date(all.main.joins_small$leave_date, format='%Y/%m/%d')
 all.main.joins_small$career_start_date <- as.Date(all.main.joins_small$career_start_date, format='%Y/%m/%d')
 
-#dip_1
+# dip_1
 all.main.joins_small$dip_1 <- replace(all.main.joins_small$dip_1 , agrep('health biomedical', tolower(all.main.joins_small$dip_1 )), 'engenharia biomédica')
+
+# status
+
+
 
 
 
 save(all.main.joins_small, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small.RData', ascii=T)
-
+load('C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small.RData')
 
 
 
