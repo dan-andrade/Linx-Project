@@ -8,6 +8,7 @@ library(reshape2)
 library(car)
 library(doBy)
 library(sqldf)
+library(Hmisc)
 
 ###loading R files
 
@@ -416,7 +417,7 @@ keywords2$k1_new <- replace(keywords2$k1_new, agrep('rest architecture', keyword
 keywords2$k1_new <- replace(keywords2$k1_new, agrep('shell scripting', keywords2$k1_new), 'shell script')
 keywords2$k1_new <- replace(keywords2$k1_new, agrep('shell scripting ksh sh bash…', keywords2$k1_new), 'shell script')
 keywords2$k1_new <- replace(keywords2$k1_new, agrep('tems discovery', keywords2$k1_new), 'tems')
-keywords2$k1_new <- replace(keywords2$k1_new, agrep('vb', keywords2$k1_new), 'visual basic')
+#keywords2$k1_new <- replace(keywords2$k1_new, agrep('vb', keywords2$k1_new), 'visual basic')
 
 
 ### frequencies
@@ -475,7 +476,7 @@ NA_perc.kw <- data.frame(NA_perc.kw)
 orderBy(~-NA_perc.kw, NA_perc.kw)
 
 # to delete vars with more than a certain $ of NAs
-k2.wide_small <- k2.wide[, colSums(is.na(k2.wide)) < nrow(k2.wide) * 0.3]
+k2.wide_small <- k2.wide[, colSums(is.na(k2.wide)) < nrow(k2.wide) * 0.7]
 
 # or when 'NA'
 NAfact_perc.kw <- sapply(k2.wide, function(y) round(as.numeric(length(y[y=='NA'])*100/length(y)), 1))
@@ -526,7 +527,7 @@ skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('desenvolvimen
 
 # combine levels of skills
 skills2$skill_specialty <- combine.levels(skills2$skill_specialty, minlev = 0.001)
-#corrections
+
 skills2$skill_specialty <- tolower(skills2$skill_specialty) #correcting 'OTHERS'
 skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('architecture  design', skills2$skill_specialty), 'arquitetura e desenho')
 skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('arquitetura e desenho de sistemas', skills2$skill_specialty), 'arquitetura e desenho')
@@ -541,7 +542,7 @@ skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('packaging  in
 skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('bancários', skills2$skill_specialty), 'banking')
 skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('finance', skills2$skill_specialty), 'finance services')
 skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('software', skills2$skill_specialty), 'software')
-skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('sap', skills2$skill_specialty), 'sap')
+skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('soluções sap', skills2$skill_specialty), 'sap solutions')
 skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('customer', skills2$skill_specialty), 'customer service')
 skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('cliente', skills2$skill_specialty), 'customer service')
 skills2$skill_specialty <- replace(skills2$skill_specialty, agrep('test', skills2$skill_specialty), 'testing')
@@ -915,7 +916,6 @@ all.main.joins_small$has_certif <- ifelse(is.na(all.main.joins_small$cert_1) == 
 
 # dates
 all.main.joins_small$hire_date <- as.Date(all.main.joins_small$hire_date, format='%Y/%m/%d')
-all.main.joins_small$leave_date <- as.Date(all.main.joins_small$leave_date, format='%Y/%m/%d')
 all.main.joins_small$career_start_date <- as.Date(all.main.joins_small$career_start_date, format='%Y/%m/%d')
 #create seniority_yrs var from hire_date
 all.main.joins_small$hire_date <- as.integer(as.double(Sys.Date() - all.main.joins_small$hire_date)/365)
@@ -935,12 +935,8 @@ all.main.joins_small$career_start_date <- as.factor(all.main.joins_small$career_
 setnames(all.main.joins_small, old='career_start_date', new='experience_yrs')
 
 
-
-
-
 # dip_1
 all.main.joins_small$dip_1 <- replace(all.main.joins_small$dip_1 , agrep('health biomedical', tolower(all.main.joins_small$dip_1 )), 'engenharia biomédica')
-
 
 
 # status
@@ -949,9 +945,9 @@ all.main.joins_small$dip_1 <- replace(all.main.joins_small$dip_1 , agrep('health
 
 
 
-save(all.main.joins_small, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small.RData', ascii=T)
+save(all.main.joins_small, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small_', ascii=T)
+load('C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small_.RData')
 load('C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small.RData')
-
 
 
 
