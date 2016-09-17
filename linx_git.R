@@ -588,7 +588,7 @@ NA_perc.sk <- data.frame(NA_perc.sk)
 orderBy(~-NA_perc.sk, NA_perc.sk)
 
 # to delete vars with more than a certain $ of NAs
-skills.wide_small <- skills.wide[, colSums(is.na(skills.wide)) < nrow(skills.wide) * 0.5]
+skills.wide_small <- skills.wide[, colSums(is.na(skills.wide)) < nrow(skills.wide) * 0.75]
 
 # or when 'NA'
 NAfact_perc.sk <- sapply(skills.wide, function(y) round(as.numeric(length(y[y=='NA'])*100/length(y)), 1))
@@ -647,7 +647,7 @@ NA_perc.cert <- data.frame(NA_perc.cert)
 orderBy(~-NA_perc.cert, NA_perc.cert)
 
 # to delete vars with more than a certain $ of NAs
-certif.wide_small <- select(certif.wide_small, employee_id, cert_1)
+certif.wide_small <- select(certif.wide, employee_id, cert_1)
 certif.wide_small_2 <- certif.wide[, colSums(is.na(certif.wide)) < nrow(certif.wide) * 0.6]
 
 # or when 'NA'
@@ -772,7 +772,7 @@ colnames(exp.keywords.wide)[2:7] <- paste0("exp.kw_",colnames(exp.keywords.wide)
 
 ###
 
-# still to do:
+# left out:
 experiences
 exp.skills
 exp.keywords
@@ -858,7 +858,7 @@ all.main.joins_small <- all.main.joins[, colSums(is.na(all.main.joins)) < nrow(a
 # all.main.joins_small <- na.tree.replace(all.main.joins_small)
 
 # drop vars
-all.main.joins_small <- select(all.main.joins_small, -hierar_mgr, -lang_portuguese,
+all.main.joins_small <- select(all.main.joins_small, -hierar_mgr, -status, -lang_portuguese,
                                -summary, -nationality, -profile_title, -unit_name, -leave_date)
 NA_perc.ALL_small <- sapply(all.main.joins_small, function(y) round(sum(length(which(is.na(y))))*100/length(y), 1))
 NA_perc.ALL_small <- data.frame(NA_perc.ALL_small)
@@ -939,9 +939,6 @@ setnames(all.main.joins_small, old='career_start_date', new='experience_yrs')
 all.main.joins_small$dip_1 <- replace(all.main.joins_small$dip_1 , agrep('health biomedical', tolower(all.main.joins_small$dip_1 )), 'engenharia biomédica')
 
 
-# status
-
-
 
 
 
@@ -969,19 +966,14 @@ write.csv2(all.main.joins_small, file='C:/Users/Altran/Desktop/BD/29-08/R output
 
 
 
-
-# order diplomas by date, then do index (check for differences)
+# still, for diplomas:
+#wait for Raquel's HR file or ask HR
+#order diplomas by date, then do index (check for differences)
 
 
 
 # investigate removing observations with DC as CFStatus=='Initiated' (ie not published) in CF
 
-
-# recode keywords in google sheets (to separate strings, then apply fuzzy matching function; check for differences)
-
-# ex with keywords table
-#' search for:
-#' package stringr & stringdist
 
 
 # contingencies tables
