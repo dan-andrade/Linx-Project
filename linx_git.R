@@ -919,33 +919,37 @@ all.main.joins_small$hire_date <- as.Date(all.main.joins_small$hire_date, format
 all.main.joins_small$career_start_date <- as.Date(all.main.joins_small$career_start_date, format='%Y/%m/%d')
 #create seniority_yrs var from hire_date
 all.main.joins_small$hire_date <- as.integer(as.double(Sys.Date() - all.main.joins_small$hire_date)/365)
-all.main.joins_small$hire_date <- ifelse(all.main.joins_small$hire_date <= 2, '0-2 yrs', (ifelse(all.main.joins_small$hire_date <= 5 & all.main.joins_small$hire_date > 2, '3-5 yrs',
-                                                                                                 (ifelse(all.main.joins_small$hire_date <= 10, '6-10 yrs',
-                                                                                                         (ifelse(all.main.joins_small$hire_date >10, '>10 yrs', '')))))))
-all.main.joins_small$hire_date <- as.factor(all.main.joins_small$hire_date)
 setnames(all.main.joins_small, old='hire_date', new='seniority_yrs')
+all.main.joins_small$seniority_yrs_cat <- ifelse(all.main.joins_small$seniority_yrs <= 2, '0-2 yrs', (ifelse(all.main.joins_small$seniority_yrs <= 5 & all.main.joins_small$seniority_yrs > 2, '3-5 yrs',
+                                                                                                 (ifelse(all.main.joins_small$seniority_yrs <= 10, '6-10 yrs',
+                                                                                                         (ifelse(all.main.joins_small$seniority_yrs >10, '>10 yrs', '')))))))
+all.main.joins_small$seniority_yrs_cat <- as.factor(all.main.joins_small$seniority_yrs_cat)
 #create experience_yrs var from career_start_date
 all.main.joins_small$career_start_date <- as.integer(as.double(Sys.Date() - all.main.joins_small$career_start_date)/365)
-all.main.joins_small$career_start_date <- ifelse(all.main.joins_small$career_start_date <= 2, '0-2 yrs', (ifelse(all.main.joins_small$career_start_date <= 5 & all.main.joins_small$career_start_date > 2, '3-5 yrs',
-                                                                                                                 (ifelse(all.main.joins_small$career_start_date <= 10, '6-10 yrs',
-                                                                                                                         (ifelse(all.main.joins_small$career_start_date <= 15, '11-15 yrs',
-                                                                                                                                 (ifelse(all.main.joins_small$career_start_date <= 20, '16-20',
-                                                                                                                                         ifelse(all.main.joins_small$career_start_date > 20, '>20', ''))))))))))
-all.main.joins_small$career_start_date <- as.factor(all.main.joins_small$career_start_date)
 setnames(all.main.joins_small, old='career_start_date', new='experience_yrs')
+all.main.joins_small$experience_yrs_cat <- ifelse(all.main.joins_small$experience_yrs <= 2, '0-2 yrs', (ifelse(all.main.joins_small$experience_yrs <= 5 & all.main.joins_small$experience_yrs > 2, '3-5 yrs',
+                                                                                                                 (ifelse(all.main.joins_small$experience_yrs <= 10, '6-10 yrs',
+                                                                                                                         (ifelse(all.main.joins_small$experience_yrs <= 15, '11-15 yrs',
+                                                                                                                                 (ifelse(all.main.joins_small$experience_yrs <= 20, '16-20',
+                                                                                                                                         ifelse(all.main.joins_small$experience_yrs > 20, '>20', ''))))))))))
+all.main.joins_small$experience_yrs_cat <- as.factor(all.main.joins_small$experience_yrs_cat)
 
 
 # dip_1
 all.main.joins_small$dip_1 <- replace(all.main.joins_small$dip_1 , agrep('health biomedical', tolower(all.main.joins_small$dip_1 )), 'engenharia biomédica')
 
 
+### reducing dataset
 
+all.small <- select(all.main.joins_small, -name, -department)
 
 
 save(all.main.joins_small, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small_', ascii=T)
 load('C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small_.RData')
 load('C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small.RData')
 
+save(all.small, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.small', ascii=T)
+load('C:/Users/Altran/Desktop/BD/29-08/R files/all.small.RData')
 
 
 
