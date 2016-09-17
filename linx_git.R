@@ -943,6 +943,23 @@ all.main.joins_small$dip_1 <- replace(all.main.joins_small$dip_1 , agrep('health
 
 all.small <- select(all.main.joins_small, -name, -department)
 
+# checking on var linx_pub_status
+summary(all.small$linx_pub_status)
+#verify NAs when linx_pub_status == NA
+na.pub <- filter(all.small, is.na(linx_pub_status)==T)
+NA_perc.na.pub <- sapply(na.pub , function(y) round(sum(length(which(is.na(y))))*100/length(y), 1))
+NA_perc.na.pub <- data.frame(NA_perc.na.pub )
+orderBy(~-NA_perc.na.pub, NA_perc.na.pub)
+#remove rows where linx_pub_status == NA
+all.small <- filter(all.small, is.na(linx_pub_status)==F)
+#verify NAs when linx_pub_status == 'Initiated'
+na.Init <- filter(all.small, linx_pub_status == 'Initiated')
+NA_perc.na.Init <- sapply(na.Init , function(y) round(sum(length(which(is.na(y))))*100/length(y), 1))
+NA_perc.na.Init <- data.frame(NA_perc.na.Init)
+orderBy(~-NA_perc.na.Init, NA_perc.na.Init)
+#keep only rows where linx_pub_status == 'Published'
+all.small <- filter(all.small, linx_pub_status == 'Published')
+all.small <- select(all.small, -linx_pub_status)
 
 save(all.main.joins_small, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small_', ascii=T)
 load('C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small_.RData')
