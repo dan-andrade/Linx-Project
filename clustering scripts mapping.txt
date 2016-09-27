@@ -1,0 +1,52 @@
+CLUSTERING SCRIPTS
+
+:) straighforward kmeans (w/ or w/out dummies TBD; includes cluster means and binding)
+. clustering linx_straightforward kmeans
+
+:) skmeans package (includes cluster binding; some plots)
+. clustering linx_skmeans package
+
+:) Hierarchical tree clustering
+. clustering mixed_linx
+
+:) PCA (w/ clustering; includes binding and some plots and freqs)
+. PCA_linx
+
+:) tm keyword analysis (includes cluster dendrogram)
+. tm_ALL keywords linx_NEW
+
+:) wordspace networks
+. wordspace_keywords linx
+
+tm skills analysis
+. tm_ALL skills linx
+
+X SOM plots
+. SOM clustering_linx
+
+X affinity propagation
+. affinity propagation clustering
+
+X unsupervised random forest (w/ feature importance)
+. random_forest unsupervised - randomUniformForest package
+
++++ PLUS +++
+
+:) random forest (w/ feature importance)
+. random_forest_Linx exp_version 2
+
+:) feature importance for classification w/ mlr package (w/ and w/out NAs; dummies for the NAs)
+. feature importance_mlr
+
+X clustering keywords
+. clustering FreqTerms_linx keywords
+
+X keyword co-occurrences
+. 1 & 2: keywords into a co-occurrence network
+
+X igraph keywords
+. igraph_keywords linx
+
+X knn
+. knn_linx
+
