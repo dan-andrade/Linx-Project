@@ -1,6 +1,7 @@
 library(arules)
 library(arulesViz)
 library(dplyr)
+library(pmml)
 
 # http://www.rdatamining.com/examples/association-rules
 
@@ -32,6 +33,10 @@ notActive <- apriori(all.small_2, control = list(verbose=F),
 quality(rules) <- round(quality(rules), digits=3)
 rules.sorted <- sort(rules, by="lift")
 
+if(sessionInfo()['basePkgs']=="tm" | sessionInfo()['otherPkgs']=="tm"){
+  detach(package:tm, unload=TRUE)
+}
+
 inspect(head(rules.sorted, 20))
 
 # remove redundant rules
@@ -53,5 +58,9 @@ plot(head(rules.pruned, 20), method = "grouped")
 plot(head(rules.pruned, 20), method = "graph", control=list(type="items"))
 plot(head(rules.pruned, 20), method = "paracoord", control = list(reorder = TRUE))
 
-
+#write rules to files
+write(head(rules.pruned, 20), file = "c:/users/altran/desktop/data.csv", sep = ",", col.names = NA)
+#View
+df_rules <- as(rules.pruned,"data.frame")
+View(df_rules)
 
