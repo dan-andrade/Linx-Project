@@ -1,5 +1,6 @@
 library(arules)
 library(arulesViz)
+library(dplyr)
 
 # http://www.rdatamining.com/examples/association-rules
 
@@ -24,7 +25,7 @@ rules <- apriori(all.small_2,
 notActive <- apriori(all.small_2, control = list(verbose=F),
                      parameter = list(minlen=2, supp=0.005, conf=0.5),
                      appearance = list(default="none", rhs=c("is_active=NO"),
-                          lhs=c("kw_5=oracle")))
+                                       lhs=c("kw_5=oracle")))
 ###
 
 
@@ -45,6 +46,12 @@ inspect(head(rules.pruned, 20))
 
 # visualization
 
+all.small_trans <- as(all.small_2, "transactions")
+itemFrequencyPlot(all.small_trans, support = 0.1, cex.names=0.8)
+#plots
 plot(head(rules.pruned, 20), method = "grouped")
-plot(head(rules.pruned, 20), method = "graph")
+plot(head(rules.pruned, 20), method = "graph", control=list(type="items"))
 plot(head(rules.pruned, 20), method = "paracoord", control = list(reorder = TRUE))
+
+
+
