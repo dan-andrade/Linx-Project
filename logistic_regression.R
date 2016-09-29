@@ -5,13 +5,33 @@ library(aod)
 library(ggplot2)
 library(Rcpp)
 library(pscl)
+library(randomForest)
+library(caTools)
+library(dplyr)
 
-mydata <- small_
+load('C:/Users/Altran/Desktop/BD/29-08/R files/all.small.RData')
 
-mydata$is_active <- factor(mydata$is_active)
+small_ <- dplyr::select(all.small, -1, -11, -19, -(21:29), -(33:38), -40, -41)
+small_[c(2:4,6,9,13:20)] <- sapply(small_[c(2:4,6,9,13:20)], function (x) gsub("[[:punct:]]", "", x))
+small_[c(2:4,6,9,13:20)] <- sapply(small_[c(2:4,6,9,13:20)], function(x) gsub(' ', '_', x))
+small_[c(2:4,6,9,13:20)] <- sapply(small_[c(2:4,6,9,13:20)], function(x) gsub('/', '-', x))
+
+vars <- names(small_)
+small_[sapply(small_, is.character)] <- lapply(small_[sapply(small_, is.character)],
+                                               as.factor) 
+if (sum(is.na(small_[vars]))) small_[vars] <- na.roughfix(small_[vars]) #impute by median/mode (randomForest)
+
+
+# sample split
+spl <- sample.split(small_, SplitRatio = 0.7)
+train <- subset(small_, spl == TRUE)
+test <- subset(small_, spl == FALSE)
+
+train$is_active <- factor(train$is_active)
+test$is_active <- factor(test$is_active)
 
 #build formula
-varNames <- names(mydata)
+varNames <- names(train)
 # Exclude ID or Response variable
 varNames <- varNames[!varNames %in% c("is_active")]
 # add + sign between exploratory variables
@@ -19,12 +39,22 @@ varNames1 <- paste(varNames, collapse = "+")
 # Add response variable and convert to a formula object
 rf.form <- as.formula(paste("is_active", varNames1, sep = " ~ "))
 
-mylogit <- glm(rf.form, data = mydata, family = "binomial")
+mylogit <- glm(rf.form, data = train, family = binomial(link = "logit"))
 
 summary(mylogit)
 
 anova(mylogit, test="Chisq")
 pR2(mylogit) # McFadden R2 index can be used to assess the model fit
+
+
+###
+
+# fitted.results <- stats::predict(mylogit, test, type='response')
+# fitted.results <- ifelse(fitted.results > 0.5, 1, 0)
+
+# misClasificError <- mean(fitted.results != test$is_active)
+# print(paste('Accuracy', 1-misClasificError))
+
 
 
 ###
