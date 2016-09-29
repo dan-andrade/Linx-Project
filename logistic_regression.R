@@ -1,5 +1,6 @@
 # http://www.ats.ucla.edu/stat/r/dae/logit.htm
-
+# https://www.r-bloggers.com/how-to-perform-a-logistic-regression-in-r/
+  
 library(aod)
 library(ggplot2)
 library(Rcpp)
