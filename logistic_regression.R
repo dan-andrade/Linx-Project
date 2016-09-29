@@ -22,11 +22,13 @@ small_[sapply(small_, is.character)] <- lapply(small_[sapply(small_, is.characte
                                                as.factor) 
 if (sum(is.na(small_[vars]))) small_[vars] <- na.roughfix(small_[vars]) #impute by median/mode (randomForest)
 
+# to un-imbalance the dataset
+bal <- SMOTE(rf.form, small_, perc.over = 400, k = 5)
 
 # sample split
-spl <- sample.split(small_, SplitRatio = 0.7)
-train <- subset(small_, spl == TRUE)
-test <- subset(small_, spl == FALSE)
+spl <- sample.split(bal, SplitRatio = 0.7)
+train <- subset(bal, spl == TRUE)
+test <- subset(bal, spl == FALSE)
 
 train$is_active <- factor(train$is_active)
 test$is_active <- factor(test$is_active)
@@ -38,9 +40,10 @@ varNames <- varNames[!varNames %in% c("is_active")]
 # add + sign between exploratory variables
 varNames1 <- paste(varNames, collapse = "+")
 # Add response variable and convert to a formula object
-rf.form <- as.formula(paste("is_active", varNames1, sep = " ~ "))
+rf.form2 <- as.formula(paste("is_active", varNames1, sep = " ~ "))
 
-mylogit <- glm(rf.form, data = train, family = binomial)
+
+mylogit <- glm(rf.form2, data = train, family = binomial)
 
 fitted.results <- stats::predict(mylogit, type='response')
 fitted.results <- ifelse(fitted.results > 0.5, 1, 0)
