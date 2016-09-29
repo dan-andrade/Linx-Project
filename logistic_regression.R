@@ -8,6 +8,7 @@ library(pscl)
 library(randomForest)
 library(caTools)
 library(dplyr)
+library(ROCR)
 
 load('C:/Users/Altran/Desktop/BD/29-08/R files/all.small.RData')
 
@@ -39,7 +40,17 @@ varNames1 <- paste(varNames, collapse = "+")
 # Add response variable and convert to a formula object
 rf.form <- as.formula(paste("is_active", varNames1, sep = " ~ "))
 
-mylogit <- glm(rf.form, data = train, family = binomial(link = "logit"))
+mylogit <- glm(rf.form, data = train, family = binomial)
+
+fitted.results <- stats::predict(mylogit, type='response')
+fitted.results <- ifelse(fitted.results > 0.5, 1, 0)
+#confusion matrix
+table(train$is_active, fitted.results > 0.5)
+
+#ROCR Curve
+ROCRpred <- prediction(fitted.results, train$is_active)
+ROCRperf <- performance(ROCRpred, 'tpr','fpr')
+plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
 
 summary(mylogit)
 
@@ -47,15 +58,7 @@ anova(mylogit, test="Chisq")
 pR2(mylogit) # McFadden R2 index can be used to assess the model fit
 
 
-###
-
-# fitted.results <- stats::predict(mylogit, test, type='response')
-# fitted.results <- ifelse(fitted.results > 0.5, 1, 0)
-
-# misClasificError <- mean(fitted.results != test$is_active)
-# print(paste('Accuracy', 1-misClasificError))
-
-
+### 
 
 ###
 # CIs using profiled log-likelihood
