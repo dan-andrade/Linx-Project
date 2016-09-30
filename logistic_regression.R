@@ -1,6 +1,6 @@
 # http://www.ats.ucla.edu/stat/r/dae/logit.htm
 # https://www.r-bloggers.com/how-to-perform-a-logistic-regression-in-r/
-  
+
 library(aod)
 library(ggplot2)
 library(Rcpp)
@@ -9,6 +9,7 @@ library(randomForest)
 library(caTools)
 library(dplyr)
 library(ROCR)
+library(DMwR)
 
 load('C:/Users/Altran/Desktop/BD/29-08/R files/all.small.RData')
 
@@ -22,28 +23,33 @@ small_[sapply(small_, is.character)] <- lapply(small_[sapply(small_, is.characte
                                                as.factor) 
 if (sum(is.na(small_[vars]))) small_[vars] <- na.roughfix(small_[vars]) #impute by median/mode (randomForest)
 
-# to un-imbalance the dataset
-bal <- SMOTE(rf.form, small_, perc.over = 400, k = 5)
+#check classes distribution
+prop.table(table(small_$is_active))
+
+#balance the data
+data.rose <- ROSE(is_active ~ ., data = small_, seed = 1)$data
+table(data.rose$is_active)
 
 # sample split
-spl <- sample.split(bal, SplitRatio = 0.7)
-train <- subset(bal, spl == TRUE)
-test <- subset(bal, spl == FALSE)
+spl <- sample.split(data.rose, SplitRatio = 0.7)
+train <- subset(data.rose, spl == TRUE)
+train$is_active <- as.factor(train$is_active)
+test <- subset(data.rose, spl == FALSE)
 
 train$is_active <- factor(train$is_active)
 test$is_active <- factor(test$is_active)
 
 #build formula
-varNames <- names(train)
+varNames <- names(small_)
 # Exclude ID or Response variable
 varNames <- varNames[!varNames %in% c("is_active")]
 # add + sign between exploratory variables
 varNames1 <- paste(varNames, collapse = "+")
 # Add response variable and convert to a formula object
-rf.form2 <- as.formula(paste("is_active", varNames1, sep = " ~ "))
+rf.form <- as.formula(paste("is_active", varNames1, sep = " ~ "))
 
-
-mylogit <- glm(rf.form2, data = train, family = binomial)
+#model
+mylogit <- glm(rf.form, data = train, family = binomial) # using the formula
 
 fitted.results <- stats::predict(mylogit, type='response')
 fitted.results <- ifelse(fitted.results > 0.5, 1, 0)
