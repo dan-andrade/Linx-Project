@@ -49,7 +49,7 @@ varNames1 <- paste(varNames, collapse = "+")
 rf.form <- as.formula(paste("is_active", varNames1, sep = " ~ "))
 
 #model
-mylogit <- glm(rf.form, data = train, family = binomial) # using the formula
+mylogit <- glm(rf.form, data = train, family = binomial, control = list(maxit = 50)) # using the formula
 
 fitted.results <- stats::predict(mylogit, type='response')
 fitted.results <- ifelse(fitted.results > 0.5, 1, 0)
@@ -64,7 +64,7 @@ plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
 summary(mylogit)
 
 anova(mylogit, test="Chisq")
-pR2(mylogit) # McFadden R2 index can be used to assess the model fit
+round(pR2(mylogit), 3) # McFadden R2 index can be used to assess the model fit
 
 
 ### 
