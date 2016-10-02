@@ -7,6 +7,7 @@ library(caTools)
 library(dplyr)
 library(ROCR)
 library(DMwR)
+set.seed(2016)
 
 load('C:/Users/Altran/Desktop/BD/29-08/R files/all.small.RData')
 
