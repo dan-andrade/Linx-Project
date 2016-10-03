@@ -978,8 +978,8 @@ save(all.main.joins_small, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.ma
 load('C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small_.RData')
 load('C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small.RData')
 
-save(all.small, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.small.RData', ascii=T)
-load('C:/Users/Altran/Desktop/BD/29-08/R files/all.small.RData')
+save(all.small, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.small_0310.RData', ascii=T)
+load('C:/Users/Altran/Desktop/BD/29-08/R files/all.small_0310.RData')
 
 
 
