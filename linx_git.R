@@ -482,6 +482,13 @@ k2.wide_small <- k2.wide[, colSums(is.na(k2.wide)) < nrow(k2.wide) * 0.7]
 NAfact_perc.kw <- sapply(k2.wide, function(y) round(as.numeric(length(y[y=='NA'])*100/length(y)), 1))
 k2.wide_small <- na.tree.replace(k2.wide_small)
 
+# adding a new feature: number of keywords by employee
+nr_kws <- k2 %>% group_by(employee_id) %>% tally()
+colnames(nr_kws)[2] <- 'keywords_count'
+nr_kws <- orderBy(~-keywords_count, nr_kws)
+
+k2.wide_small <- merge(k2.wide_small, nr_kws, by='employee_id')
+
 
 ###
 # original keyword transposition
@@ -597,6 +604,12 @@ skills.wide_small[sapply(skills.wide_small, is.character)] <- lapply(skills.wide
                                                                      as.factor) #convert vars again into factors to use na.tree.replace to recode NAs
 skills.wide_small <- na.tree.replace(skills.wide_small)
 
+# adding a new feature: number of skills by employee
+nr_sks <- skills2 %>% group_by(employee_id) %>% tally()
+colnames(nr_sks)[2] <- 'skills_count'
+nr_sks <- orderBy(~-skills_count, nr_sks)
+
+skills.wide_small <- merge(skills.wide_small, nr_sks, by='employee_id')
 
 
 # certif
@@ -965,7 +978,7 @@ save(all.main.joins_small, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.ma
 load('C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small_.RData')
 load('C:/Users/Altran/Desktop/BD/29-08/R files/all.main.joins_small.RData')
 
-save(all.small, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.small', ascii=T)
+save(all.small, file='C:/Users/Altran/Desktop/BD/29-08/R files/all.small.RData', ascii=T)
 load('C:/Users/Altran/Desktop/BD/29-08/R files/all.small.RData')
 
 
