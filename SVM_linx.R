@@ -7,6 +7,7 @@ library(pROC)
 library(dplyr)
 library(randomForest)
 library(dummies)
+library(ROSE)
 set.seed(2016)
 
 source('C:/Users/Altran/Documents/Linx Project/varlist.R') # varlist custom function
@@ -34,7 +35,16 @@ if (sum(is.na(small_noNA[vars]))) small_noNA[vars] <- na.roughfix(small_noNA[var
 
 smp_all_noNA <- dummy.data.frame(small_noNA, names=names(small_noNA)[c(2:4,6,9,13:15)])
 
-dst2 <- smp_all_noNA
+
+#check classes distribution
+prop.table(table(smp_all_noNA$is_active))
+
+#balance the data
+data.rose.smp.noNA <- ROSE(is_active ~ ., data = smp_all_noNA, seed = 1)$data
+table(data.rose.smp.noNA$is_active)
+
+
+dst2 <- data.rose.smp.noNA
 dst <- as.data.frame(sapply(dst2[, -46], function(x) as.numeric(x)))
 dst$is_active <- dst2$is_active
 scd <- as.data.frame(scale(dst[-392]))
@@ -130,26 +140,26 @@ model2  <- svm(L~., data = xtrain, kernel = "radial",
                gamma = t.gamma, cost = C2) 
 
 # test the model
-predd2 <- predict(model2, xtest[,-3])
+predd2 <- predict(model2, xtest[,-392])
 
 # Check accuracy:
-table(predd2, xtest[,3])
+table(predd2, xtest[,392])
 # more complete:
 confusionMatrix(predict(model2, xtest), xtest$L)
 
 # Plot predicted & missclassified
-qplot(A, B, colour = as.factor(L), shape = predd2, data = xtest)
+qplot(experience_yrs, seniority_yrs, colour = as.factor(L), shape = predd2, data = xtest)
 
 
 ###
 
-# METHOD 3 (full dstset w/out training and testing sets)
+# METHOD 3 (full dataset w/out training and testing sets)
 
 
 ###
 # alternatively the traditional interface:
-x <- subset(dst, select = -L)
-y <- dst$L
+x <- subset(dst, select = -is_active)
+y <- dst$is_active
 
 tuned2 <- tune.svm(x, y, gamma = 10^(-6:-1), cost = 10^(-1:1))
 summary(tuned2)
@@ -169,7 +179,7 @@ predd3 <- fitted(model3)
 table(predd3, y)
 
 # Plot predicted & missclassified
-qplot(A, B, colour = as.factor(L), shape = predd3, data = dst)
+qplot(experience_yrs, seniority_yrs, colour = as.factor(is_active), shape = predd3, data = dst)
 
 
 
