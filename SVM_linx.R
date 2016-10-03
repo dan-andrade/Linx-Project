@@ -146,6 +146,10 @@ predd2 <- predict(model2, xtest[,-392])
 table(predd2, xtest[,392])
 # more complete:
 confusionMatrix(predict(model2, xtest), xtest$L)
+#accuracy
+accuracy.meas(xtest$L, predd2)
+#ROC curve
+roc.curve(xtest$L, predd2, plotit = T)
 
 # Plot predicted & missclassified
 qplot(experience_yrs, seniority_yrs, colour = as.factor(L), shape = predd2, data = xtest)
