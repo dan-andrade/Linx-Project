@@ -27,14 +27,14 @@ if (sum(is.na(small_[vars]))) small_[vars] <- na.roughfix(small_[vars]) #impute 
 prop.table(table(small_$is_active))
 
 #balance the data
-data.rose <- ROSE(is_active ~ ., data = small_, seed = 1)$data
-table(data.rose$is_active)
+data.rose.small <- ROSE(is_active ~ ., data = small_, seed = 1)$data
+table(data.rose.small$is_active)
 
 # sample split
-spl <- sample.split(data.rose, SplitRatio = 0.7)
-train <- subset(data.rose, spl == TRUE)
+spl <- sample.split(data.rose.small, SplitRatio = 0.7)
+train <- subset(data.rose.small, spl == TRUE)
 train$is_active <- as.factor(train$is_active)
-test <- subset(data.rose, spl == FALSE)
+test <- subset(data.rose.small, spl == FALSE)
 
 train$is_active <- factor(train$is_active)
 test$is_active <- factor(test$is_active)
@@ -65,6 +65,12 @@ summary(mylogit)
 
 anova(mylogit, test="Chisq")
 round(pR2(mylogit), 3) # McFadden R2 index can be used to assess the model fit
+
+# chi square test p-value
+with(mylogit, pchisq(null.deviance - deviance,
+                      df.null - df.residual, lower.tail = FALSE))
+# log likelihood      
+logLik(mylogit)
 
 
 ### 
