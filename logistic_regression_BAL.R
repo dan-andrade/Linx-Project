@@ -72,6 +72,11 @@ with(mylogit, pchisq(null.deviance - deviance,
 # log likelihood      
 logLik(mylogit)
 
+# effects
+library(effects)
+var <- 'position'
+plot(Effect(var, mylogit))
+orderBy(~fit, data.frame(Effect(var, mylogit)))
 
 ### 
 
