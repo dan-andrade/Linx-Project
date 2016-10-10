@@ -9,6 +9,9 @@ library(car)
 library(doBy)
 library(sqldf)
 library(Hmisc)
+library(randomForest)
+library(dummies)
+library(caret)
 
 ###loading R files
 
@@ -883,7 +886,7 @@ orderBy(~-NA_perc.ALL_small, NA_perc.ALL_small)
 all.main.joins_small$location <- ifelse(all.main.joins_small$location =='Portugal - Lisbon',
                                         'Lisbon', 'other')
 all.main.joins_small$location_2 <- ifelse(all.main.joins_small$location_2 =='Portugal - Lisbon',
-                                        'Lisbon', 'other')
+                                          'Lisbon', 'other')
 all.main.joins_small$location <- ifelse(is.na(all.main.joins_small$location) == T,
                                         all.main.joins_small$location_2, all.main.joins_small$location)
 setnames(all.main.joins_small, old='location', new='at_lisbon')
@@ -895,7 +898,7 @@ all.main.joins_small$at_lisbon <- as.factor(all.main.joins_small$at_lisbon)
 all.main.joins_small$sub_division <- as.character(all.main.joins_small$sub_division)
 all.main.joins_small$sub_division_2 <- as.character(all.main.joins_small$sub_division_2)
 all.main.joins_small$sub_division <- ifelse(is.na(all.main.joins_small$sub_division) == T,
-                                        all.main.joins_small$sub_division_2, all.main.joins_small$sub_division)
+                                            all.main.joins_small$sub_division_2, all.main.joins_small$sub_division)
 all.main.joins_small <- select(all.main.joins_small, -sub_division_2)
 all.main.joins_small$sub_division <- as.factor(all.main.joins_small$sub_division)
 #clean levels
@@ -934,17 +937,17 @@ all.main.joins_small$career_start_date <- as.Date(all.main.joins_small$career_st
 all.main.joins_small$hire_date <- as.integer(as.double(Sys.Date() - all.main.joins_small$hire_date)/365)
 setnames(all.main.joins_small, old='hire_date', new='seniority_yrs')
 all.main.joins_small$seniority_yrs_cat <- ifelse(all.main.joins_small$seniority_yrs <= 2, '0-2 yrs', (ifelse(all.main.joins_small$seniority_yrs <= 5 & all.main.joins_small$seniority_yrs > 2, '3-5 yrs',
-                                                                                                 (ifelse(all.main.joins_small$seniority_yrs <= 10, '6-10 yrs',
-                                                                                                         (ifelse(all.main.joins_small$seniority_yrs >10, '>10 yrs', '')))))))
+                                                                                                             (ifelse(all.main.joins_small$seniority_yrs <= 10, '6-10 yrs',
+                                                                                                                     (ifelse(all.main.joins_small$seniority_yrs >10, '>10 yrs', '')))))))
 all.main.joins_small$seniority_yrs_cat <- as.factor(all.main.joins_small$seniority_yrs_cat)
 #create experience_yrs var from career_start_date
 all.main.joins_small$career_start_date <- as.integer(as.double(Sys.Date() - all.main.joins_small$career_start_date)/365)
 setnames(all.main.joins_small, old='career_start_date', new='experience_yrs')
 all.main.joins_small$experience_yrs_cat <- ifelse(all.main.joins_small$experience_yrs <= 2, '0-2 yrs', (ifelse(all.main.joins_small$experience_yrs <= 5 & all.main.joins_small$experience_yrs > 2, '3-5 yrs',
-                                                                                                                 (ifelse(all.main.joins_small$experience_yrs <= 10, '6-10 yrs',
-                                                                                                                         (ifelse(all.main.joins_small$experience_yrs <= 15, '11-15 yrs',
-                                                                                                                                 (ifelse(all.main.joins_small$experience_yrs <= 20, '16-20',
-                                                                                                                                         ifelse(all.main.joins_small$experience_yrs > 20, '>20', ''))))))))))
+                                                                                                               (ifelse(all.main.joins_small$experience_yrs <= 10, '6-10 yrs',
+                                                                                                                       (ifelse(all.main.joins_small$experience_yrs <= 15, '11-15 yrs',
+                                                                                                                               (ifelse(all.main.joins_small$experience_yrs <= 20, '16-20',
+                                                                                                                                       ifelse(all.main.joins_small$experience_yrs > 20, '>20', ''))))))))))
 all.main.joins_small$experience_yrs_cat <- as.factor(all.main.joins_small$experience_yrs_cat)
 
 
@@ -998,6 +1001,56 @@ write.csv2(exp.keywords, file='C:/Users/Altran/Desktop/BD/29-08/R output/exp.key
 write.csv2(all.main.joins, file='C:/Users/Altran/Desktop/BD/29-08/R output/all.main.joins.csv')
 write.csv2(all.main.joins_small, file='C:/Users/Altran/Desktop/BD/29-08/R output/all.main.joins_small.csv')
 
+
+
+# small_
+
+load('C:/Users/Altran/Desktop/BD/29-08/R files/small_noNA.RData')
+
+small_ <- dplyr::select(all.small, -1, -11, -19, -(22:30), -(34:38), -40, -(42:43))
+small_[c(2:4,6,9,13:16,18:21)] <- sapply(small_[c(2:4,6,9,13:16,18:21)], function (x) gsub("[[:punct:]]", "", x))
+small_[c(2:4,6,9,13:16,18:21)] <- sapply(small_[c(2:4,6,9,13:16,18:21)], function(x) gsub(' ', '_', x))
+small_[c(2:4,6,9,13:16,18:21)] <- sapply(small_[c(2:4,6,9,13:16,18:21)], function(x) gsub('/', '-', x))
+
+# missing values per column
+
+mv.small <- sapply(small_, function(x){sum(is.na(x))/length(x)})*100
+mv.small
+#select columns with missing value less than 15%
+small_noNA <- subset(small_, select = mv.small < 15 )
+
+# impute mv
+
+vars <- names(small_noNA)
+small_noNA[sapply(small_noNA, is.character)] <- lapply(small_noNA[sapply(small_noNA, is.character)],
+                                                       as.factor) 
+if (sum(is.na(small_noNA[vars]))) small_noNA[vars] <- na.roughfix(small_noNA[vars]) #impute by median/mode (randomForest)
+
+
+save(small_noNA, file='C:/Users/Altran/Desktop/BD/29-08/R files/small_noNA.RData', ascii=T)
+
+
+# smp_all_
+
+load('C:/Users/Altran/Desktop/BD/29-08/R files/smp_all_noNA.RData')
+load('C:/Users/Altran/Desktop/BD/29-08/R files/smp.new.RData')
+
+smp_all_noNA <- dummy.data.frame(small_noNA, names=names(small_noNA)[c(2:4,6,9,13,15:16)])
+
+# remove linear combinations
+smp.new <- smp_all_noNA
+smp.new$is_active <- ifelse(smp.new$is_active=='NO', 1, 0)
+smp.new <- as.data.frame(sapply(smp.new, function(x) as.numeric(x)))
+smp.comb <- findLinearCombos(smp.new)
+smp.new <- smp.new[, -smp.comb$remove]
+
+# remove vars containing 'other'
+source('C:/Users/Altran/Documents/Linx Project/varlist.R') # varlist custom function
+
+other.vars <- varlist(smp.new, pattern='1other') # list vars
+smp.new <- smp.new[, !names(smp.new) %in% other.vars]
+
+save(smp.new, file='C:/Users/Altran/Desktop/BD/29-08/R files/smp.new.RData', ascii=T)
 
 
 # still, for diplomas:
